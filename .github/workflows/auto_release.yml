@@ -1,0 +1,48 @@
+name: Release
+
+on:
+  push:
+    paths:
+      - '**.java'
+      - '**.kt'
+      - '**.gradle'
+
+jobs:
+  build-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+
+      - name: Change wrapper permissions
+        run: chmod +x ./gradlew
+
+      - name: Gradle cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Gradle build
+        run: ./gradlew --build-cache build
+        
+      - name: Publish Release
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          automatic_release_tag: 'latest'
+          prerelease: true
+          title: "SalC1 Auto Duper for Lambda Client"
+          files: |
+            LICENSE.md
+            build/libs/*.jar
