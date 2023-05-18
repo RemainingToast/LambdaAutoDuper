@@ -1,0 +1,9 @@
+{
+  "required" : true,
+  "compatibilityLevel" : "JAVA_8",
+  "package" : "com.lambda.mixins",
+  "refmap" : "mixins.autoduper.refmap.json",
+  "client" : [
+    "AccessorGuiScreenHorseInventory"
+  ]
+}
