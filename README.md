@@ -1,4 +1,4 @@
-# LambdaAutoDuper
+# Lambda Auto SalC1 Duper
 
 Lambda Client addon specifically designed to automate the SalC1 dupe. This mod only works on SalC1 dupe enabled servers like 2b2t.au. The implementation is an Kotlin adaptation from the [Creepy Salhack AutoDuperModule](https://github.com/CreepyOrb924/creepy-salhack/blob/master/src/main/java/me/ionar/salhack/module/misc/AutoDuperModule.java) by CreepyOrb924.
 
