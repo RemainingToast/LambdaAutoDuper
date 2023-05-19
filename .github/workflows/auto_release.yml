@@ -42,7 +42,7 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           automatic_release_tag: 'latest'
           prerelease: true
-          title: "SalC1 Auto Duper for Lambda Client"
+          title: "Lambda Auto Duper"
           files: |
             LICENSE.md
             build/libs/*.jar
