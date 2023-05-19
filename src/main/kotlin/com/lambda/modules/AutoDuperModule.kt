@@ -50,7 +50,7 @@ internal object AutoDuperModule : PluginModule(
 //  TODO: Setting to keep chests fulfilled - i.e dupe chests if they get low to keep a stack
     private val touchGround by setting("Touch Ground", true,
         description = "Touch the ground in-between dupes. (Strict Servers)")
-    private val dupeDelay by setting("Delay", 1.0, 0.0..10.0, 0.1,
+    private val dupeDelay by setting("Delay", 1.0, 0.0..30.0, 0.1,
         description = "Delay for each dupe cycle")
     private val dupeAmount by setting("Amount", 0, 0..100, 1,
         description = "How many times to dupe (0 to disable)")
