@@ -14,8 +14,10 @@ import net.minecraft.block.BlockChest
 import net.minecraft.client.gui.inventory.GuiScreenHorseInventory
 import net.minecraft.entity.Entity
 import net.minecraft.entity.passive.AbstractChestHorse
+import net.minecraft.init.Blocks
 import net.minecraft.init.Items
 import net.minecraft.inventory.ClickType
+import net.minecraft.item.Item
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemShulkerBox
 import net.minecraft.item.ItemStack
@@ -24,6 +26,7 @@ import net.minecraft.util.EnumHand
 import net.minecraftforge.client.event.InputUpdateEvent
 import net.minecraftforge.fml.common.gameevent.TickEvent
 import org.lwjgl.input.Keyboard
+import kotlin.math.absoluteValue
 
 /**
  * --------------------------------------------------------------------------------------
@@ -47,10 +50,14 @@ internal object AutoDuperModule : PluginModule(
 ) {
     private val shulkerOnly by setting("Shulker Only", true,
         description = "Only dupe shulkers.")
-//  TODO: Setting to keep chests fulfilled - i.e dupe chests if they get low to keep a stack
+    private val stockChests by setting("Stock Chests", true,
+        description = "Dupes chests when stack is low.")
+    private val minChests by setting("Min Chests", 32, 1..63, 1,
+        description = "Minimum chests for duplication when stock is low.",
+        visibility = { stockChests })
     private val touchGround by setting("Touch Ground", true,
         description = "Touch the ground in-between dupes. (Strict Servers)")
-    private val dupeDelay by setting("Delay", 1.0, 0.0..30.0, 0.1,
+    private val dupeDelay by setting("Delay", 20, 0..40, 1,
         description = "Delay for each dupe cycle")
     private val dupeAmount by setting("Amount", 0, 0..100, 1,
         description = "How many times to dupe (0 to disable)")
@@ -124,7 +131,7 @@ internal object AutoDuperModule : PluginModule(
                 return@safeListener
             }
 
-            if (!timer.passed(dupeDelay * 100f)) {
+            if (!timer.passed(dupeDelay * 100L)) {
                 return@safeListener
             }
 
@@ -217,7 +224,7 @@ internal object AutoDuperModule : PluginModule(
                             continue
                         }
                     }
-                    if (shulkerOnly && stack.item !is ItemShulkerBox) continue
+                    if (!shouldDupeChests(stack) && shulkerOnly && stack.item !is ItemShulkerBox) continue
                     if (stack.isEmpty) continue
                     if (doDrop) {
                         if (canStore()) { //move to inventory first, then drop
@@ -286,12 +293,18 @@ internal object AutoDuperModule : PluginModule(
             if (stack.isEmpty || stack.item === Items.AIR) {
                 continue
             }
-            if (stack.item !is ItemShulkerBox && shulkerOnly) {
+            if (!shouldDupeChests(stack) && stack.item !is ItemShulkerBox && shulkerOnly) {
                 continue
             }
             mc.playerController.windowClick(windowId, i + slot, 0, ClickType.QUICK_MOVE, mc.player)
             return
         }
+    }
+
+    private fun shouldDupeChests(stack: ItemStack): Boolean {
+        return stack.item == Item.getItemFromBlock(Blocks.CHEST)
+            && stack.count <= minChests.absoluteValue
+            && stockChests;
     }
 
     private fun doDupe() {
@@ -313,7 +326,7 @@ internal object AutoDuperModule : PluginModule(
         for (slot in 9 until mc.player.inventoryContainer.inventorySlots.size - 1) {
             val stack = mc.player.inventoryContainer.getSlot(slot).stack
             if (stack.isEmpty || stack.item === Items.AIR) continue
-            if (stack.item !is ItemShulkerBox && shulkerOnly) continue
+            if (!shouldDupeChests(stack) && stack.item !is ItemShulkerBox && shulkerOnly) continue
             i++
         }
         if (i > activeChest!!.inventorySlots.inventory.size - 1) {
